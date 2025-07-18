@@ -174,6 +174,8 @@
         </button>
     </div>
 
+    <!-- Keep your <head> and styles unchanged -->
+    <!-- Replace the full <script> at the bottom with this corrected version -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDRt0Dl-bkVkYtX1F0uP4OdWtwq8s6W64w",
@@ -186,11 +188,9 @@
             measurementId: "G-6KJJVDEXTX"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        // Login with Email/Password
         function login() {
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
@@ -202,15 +202,16 @@
 
             auth.signInWithEmailAndPassword(email, password)
                 .then(userCredential => {
-                    alert(`Welcome back, ${userCredential.user.email}!`);
-                    window.location.href = "index.html";
+                    const email = userCredential.user.email;
+                    localStorage.setItem("user", JSON.stringify({ email }));
+                    alert(`Welcome back, ${email}!`);
+                    window.location.href = "dashboard.html";
                 })
                 .catch(error => {
                     alert(`Error: ${error.message}`);
                 });
         }
 
-        // Signup with Email/Password
         function signup() {
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
@@ -222,27 +223,31 @@
 
             auth.createUserWithEmailAndPassword(email, password)
                 .then(userCredential => {
-                    alert(`Account created for ${userCredential.user.email}`);
-                    window.location.href = "dashboard.html"; // ✅ Redirect after signup
+                    const email = userCredential.user.email;
+                    localStorage.setItem("user", JSON.stringify({ email }));
+                    alert(`Account created for ${email}`);
+                    window.location.href = "dashboard.html";
                 })
                 .catch(error => {
                     alert(`Error: ${error.message}`);
                 });
         }
 
-        // Login with Google
         function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider)
                 .then(result => {
-                    alert(`Welcome, ${result.user.email}!`);
-                    window.location.href = "dashboard.html"; // ✅ Redirect after Google login
+                    const email = result.user.email;
+                    localStorage.setItem("user", JSON.stringify({ email }));
+                    alert(`Welcome, ${email}!`);
+                    window.location.href = "dashboard.html";
                 })
                 .catch(error => {
                     alert(`Error: ${error.message}`);
                 });
         }
     </script>
+
 </body>
 
 </html>
