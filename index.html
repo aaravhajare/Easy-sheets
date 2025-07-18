@@ -104,11 +104,17 @@
             <input type="text" id="std" placeholder="Standard">
             <input type="date" id="joinDate" placeholder="Join Date">
             <input type="date" id="endDate" placeholder="End Date">
-            <select id="feeStatus">
+
+            <select id="feeStatus" onchange="toggleCustomFee(this)">
                 <option value="">Select Fee Status</option>
                 <option value="Paid">Paid</option>
                 <option value="Not Paid">Not Paid</option>
+                <option value="Custom">Custom</option>
             </select>
+
+            <input type="text" id="customFee" placeholder="Enter custom fee status"
+                style="display: none; width: 450px; height: 40px; margin: 5px; padding: 5px; border-radius: 5px; border: solid 0.5px grey;" />
+
             <button onclick="addData()">Add</button>
         </div>
     </center>
@@ -134,14 +140,29 @@
     <script>
         let editIndex = -1;
 
+        function toggleCustomFee(select) {
+            const customInput = document.getElementById("customFee");
+            if (select.value === "Custom") {
+                customInput.style.display = "inline-block";
+            } else {
+                customInput.style.display = "none";
+                customInput.value = "";
+            }
+        }
+
         function getDataFromInputs() {
+            const feeStatus = document.getElementById("feeStatus").value;
+            const feeValue = (feeStatus === "Custom")
+                ? document.getElementById("customFee").value.trim()
+                : feeStatus;
+
             return {
                 name: document.getElementById("name").value.trim(),
                 level: document.getElementById("level").value.trim(),
                 std: document.getElementById("std").value.trim(),
                 joinDate: document.getElementById("joinDate").value,
                 endDate: document.getElementById("endDate").value,
-                fee: document.getElementById("feeStatus").value,
+                fee: feeValue,
                 timestamp: new Date().toLocaleString()
             };
         }
@@ -152,11 +173,22 @@
             document.getElementById("std").value = data.std;
             document.getElementById("joinDate").value = data.joinDate;
             document.getElementById("endDate").value = data.endDate;
-            document.getElementById("feeStatus").value = data.fee;
+
+            if (data.fee !== "Paid" && data.fee !== "Not Paid") {
+                document.getElementById("feeStatus").value = "Custom";
+                document.getElementById("customFee").style.display = "inline-block";
+                document.getElementById("customFee").value = data.fee;
+            } else {
+                document.getElementById("feeStatus").value = data.fee;
+                document.getElementById("customFee").style.display = "none";
+                document.getElementById("customFee").value = "";
+            }
         }
 
         function clearInputs() {
             setInputs({ name: "", level: "", std: "", joinDate: "", endDate: "", fee: "" });
+            document.getElementById("customFee").value = "";
+            document.getElementById("customFee").style.display = "none";
             editIndex = -1;
         }
 
