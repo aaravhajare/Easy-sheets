@@ -78,7 +78,7 @@
 
 <body>
     <nav>
-        <h3 class="m-0">Easy Sheet</h3>
+        <h3 class="m-0" onclick="home()">Easy Sheet</h3>
         <input type="text" id="searchInput" placeholder="Search by name" onkeyup="searchData()"
             style="width:200px; height:30px; padding:5px;">
     </nav>
@@ -231,6 +231,10 @@
         }
 
         window.onload = loadData;
+
+        function home() {
+            location = "dashboard.html"
+        }
     </script>
 </body>
 

@@ -142,10 +142,28 @@
                 font-size: 1.5rem;
             }
         }
+
+        nav {
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0; /* Fixes it to the top */
+    width: 100%; /* Ensures full width */
+    z-index: 1000; /* Keeps it above other content */
+}
+
     </style>
 </head>
 
+
 <body>
+    <nav>
+        <h3 class="m-0">Easy Sheet</h3>
+    </nav>
     <div class="container">
         <h2>Welcome Back</h2>
         <div class="input-group">
