@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Easysheet-sheet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: aliceblue;
+        }
+
+        nav {
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        a {
+            color: black;
+            font-size: 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            transition: 0.3s ease;
+            color: aqua;
+        }
+
+        .add_box {
+            background-color: white;
+            box-shadow: 5px;
+            border-radius: 15px;
+            margin: 15px;
+            padding: 15px;
+            width: 90%;
+        }
+
+        input,
+        select {
+            border-radius: 5px;
+            border: solid 0.5px grey;
+            width: 450px;
+            height: 40px;
+            margin: 5px;
+            padding: 5px;
+        }
+
+        button {
+            border-radius: 5px;
+            border: none;
+            width: 450px;
+            height: 40px;
+            margin: 10px 0;
+            background-color: rgb(40, 119, 246);
+            color: white;
+            font-weight: bold;
+        }
+
+        .data {
+            background-color: transparent;
+            width: 90%;
+            margin: auto;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            border-bottom: 1px solid gray;
+            width: 70px;
+            margin: 5px;
+            font-size: 18px;
+        }
+
+        .action-btn {
+            margin: 0 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <h3 class="m-0">Easy Sheet</h3>
+        <input type="text" id="searchInput" placeholder="Search by name" onkeyup="searchData()"
+            style="width:200px; height:30px; padding:5px;">
+    </nav>
+
+    <center>
+        <div class="add_box">
+            <h4>Add Entry</h4>
+            <input type="text" id="name" placeholder="Name">
+            <input type="text" id="level" placeholder="Level">
+            <input type="text" id="std" placeholder="Standard">
+            <input type="date" id="joinDate" placeholder="Join Date">
+            <input type="date" id="endDate" placeholder="End Date">
+
+            <select id="feeStatus" onchange="toggleCustomFee(this)">
+                <option value="">Select Fee Status</option>
+                <option value="Paid">Paid</option>
+                <option value="Not Paid">Not Paid</option>
+                <option value="Custom">Custom</option>
+            </select>
+
+            <input type="text" id="customFee" placeholder="Enter custom fee status"
+                style="display: none; width: 450px; height: 40px; margin: 5px; padding: 5px; border-radius: 5px; border: solid 0.5px grey;" />
+
+            <button onclick="addData()">Add</button>
+        </div>
+    </center>
+
+    <div class="data">
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Level</th>
+                    <th>Std</th>
+                    <th>Join Date</th>
+                    <th>End Date</th>
+                    <th>Fee</th>
+                    <th>Timestamp</th>
+                    <th style="width: 70px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="dataTable"></tbody>
+        </table>
+    </div>
+
+    <script>
+        let editIndex = -1;
+
+        function toggleCustomFee(select) {
+            const customInput = document.getElementById("customFee");
+            if (select.value === "Custom") {
+                customInput.style.display = "inline-block";
+            } else {
+                customInput.style.display = "none";
+                customInput.value = "";
+            }
+        }
+
+        function getDataFromInputs() {
+            const feeStatus = document.getElementById("feeStatus").value;
+            const feeValue = (feeStatus === "Custom")
+                ? document.getElementById("customFee").value.trim()
+                : feeStatus;
+
+            return {
+                name: document.getElementById("name").value.trim(),
+                level: document.getElementById("level").value.trim(),
+                std: document.getElementById("std").value.trim(),
+                joinDate: document.getElementById("joinDate").value,
+                endDate: document.getElementById("endDate").value,
+                fee: feeValue,
+                timestamp: new Date().toLocaleString()
+            };
+        }
+
+        function setInputs(data) {
+            document.getElementById("name").value = data.name;
+            document.getElementById("level").value = data.level;
+            document.getElementById("std").value = data.std;
+            document.getElementById("joinDate").value = data.joinDate;
+            document.getElementById("endDate").value = data.endDate;
+
+            if (data.fee !== "Paid" && data.fee !== "Not Paid") {
+                document.getElementById("feeStatus").value = "Custom";
+                document.getElementById("customFee").style.display = "inline-block";
+                document.getElementById("customFee").value = data.fee;
+            } else {
+                document.getElementById("feeStatus").value = data.fee;
+                document.getElementById("customFee").style.display = "none";
+                document.getElementById("customFee").value = "";
+            }
+        }
+
+        function clearInputs() {
+            setInputs({ name: "", level: "", std: "", joinDate: "", endDate: "", fee: "" });
+            document.getElementById("customFee").value = "";
+            document.getElementById("customFee").style.display = "none";
+            editIndex = -1;
+        }
+
+        function loadData() {
+            const data = JSON.parse(localStorage.getItem("entries")) || [];
+            const table = document.getElementById("dataTable");
+            table.innerHTML = "";
+
+            data.forEach((entry, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${entry.name}</td>
+                    <td>${entry.level}</td>
+                    <td>${entry.std}</td>
+                    <td>${entry.joinDate}</td>
+                    <td>${entry.endDate}</td>
+                    <td>${entry.fee}</td>
+                    <td>${entry.timestamp}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning action-btn" onclick="editData(${index})">Edit</button>
+                        <button class="btn btn-sm btn-danger action-btn" onclick="deleteData(${index})">Delete</button>
+                    </td>
+                `;
+                table.appendChild(row);
+            });
+        }
+
+        function addData() {
+            const data = getDataFromInputs();
+
+            if (!data.name || !data.level || !data.std || !data.joinDate || !data.endDate || !data.fee) {
+                alert("Please fill all fields!");
+                return;
+            }
+
+            let entries = JSON.parse(localStorage.getItem("entries")) || [];
+
+            if (editIndex !== -1) {
+                data.timestamp = entries[editIndex].timestamp; // preserve original timestamp
+                entries[editIndex] = data;
+            } else {
+                entries.push(data);
+            }
+
+            localStorage.setItem("entries", JSON.stringify(entries));
+            clearInputs();
+            loadData();
+        }
+
+        function deleteData(index) {
+            let entries = JSON.parse(localStorage.getItem("entries")) || [];
+            entries.splice(index, 1);
+            localStorage.setItem("entries", JSON.stringify(entries));
+            loadData();
+        }
+
+        function editData(index) {
+            let entries = JSON.parse(localStorage.getItem("entries")) || [];
+            setInputs(entries[index]);
+            editIndex = index;
+        }
+
+        function searchData() {
+            const searchValue = document.getElementById("searchInput").value.toLowerCase();
+            const rows = document.querySelectorAll("#dataTable tr");
+            rows.forEach(row => {
+                const nameCell = row.querySelector("td");
+                if (nameCell && nameCell.textContent.toLowerCase().includes(searchValue)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+
+        window.onload = loadData;
+    </script>
+
+</body>
+
+</html>
