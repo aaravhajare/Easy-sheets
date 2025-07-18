@@ -236,7 +236,7 @@
             auth.signInWithPopup(provider)
                 .then(result => {
                     alert(`Welcome, ${result.user.email}!`);
-                    window.location.href = "sheet.html"; // ✅ Redirect after Google login
+                    window.location.href = "dashboard.html"; // ✅ Redirect after Google login
                 })
                 .catch(error => {
                     alert(`Error: ${error.message}`);
