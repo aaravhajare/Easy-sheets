@@ -203,7 +203,7 @@
             auth.signInWithEmailAndPassword(email, password)
                 .then(userCredential => {
                     alert(`Welcome back, ${userCredential.user.email}!`);
-                    window.location.href = ".html";
+                    window.location.href = "dashboard.html";
                 })
                 .catch(error => {
                     alert(`Error: ${error.message}`);
